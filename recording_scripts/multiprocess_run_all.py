@@ -3,35 +3,47 @@ import os
 from multiprocessing import Pool                                                
 import datetime                                                                             
 import time
-                                                                                
+                               
+
+# call this function with each individual core of multiprocessing pool
 def run_process(process):                                                             
     os.system('python {}'.format(process))                                       
                                                                                      
-                      
+# main code to run                 
 if __name__ == '__main__':
 	    
-	  # if playing back wav file
+	  ''' Setup recording of video  + audio for a set # of epochs.
+	      Each epoch is specified in seconds (Note: do not record longer than 3600 seconds due to memory issues
+	  '''  
+	    
+	  # duration of a single epoch of recording
 	  duration = '10'  # number of seconds per recording epoch (i.e. chunk of data)
       
-      # number of epochs of recording:
+      # number hours of recording requested; e.g. 3 weeks continous ~- 500 hours;
+      # the scripts can always be stopped by force (ctrl-C)
 	  n_hours = 500
+	  
+	  # compute the number of epochs required given each epoch duration and the total # of hours needed
 	  n_epochs = int((n_hours*3600)/int(duration))
+	  
+	  # overwrite n_epochs for testing purposes and calibration testing
 	  n_epochs = 1 # set it manually
 
-      # miclocations, save file names
+      # use these as subdirectories when running many tests in a row
 	  pos = 'ralph_test'
 	  temp = '6'
 	  
 	  
-	  #enter root directory to save data
+	  # enter root directory to save data
+	  # PLEASE NOTE: This main part of the root directory must be created manually
+	  # 	         the pos+temp parts will be added automatically in each run
 	  root_dir = os.path.join(r'C:\data\ralph_dan_calibration', pos+temp)
-	  #root_dirs = [r'D:\Cohorts\july_19_audio'+pos+temp, r'E:\july_19_video'+pos+temp]
 	  print ("ROOT DIRS: ", root_dir)
 
     		  	  
 	  #  ***************** (optional) CALIBRATION AUDIO TEST *************************
-	  
-	  #move to False if you are not doing audio calibration tes
+	  #  This code is used to run calbiration tests of audio
+	  # set flag to False if not doing audio calibration tests
 	  if True:
 	      n_epochs = 1
 	      
@@ -51,7 +63,7 @@ if __name__ == '__main__':
 		  #wav_fname = r"C:\data\data\waves\USVs\tests\2020-3-4_11_49_32_007766_snippet_10_harmonics.wav"
 		  #wav_fname = r"C:\data\data\waves\USVs\tests\2020-3-15_03_51_56_415333_snippet_17.wav"
 
-	  # ***************** RECORD ANIMALS*******************
+	  # ***************** MAKE ALL REQUIRED DIRECOTIRES ******************
 	
 	  # make default directories
 	  # Make audio directories on Drive D
@@ -60,22 +72,20 @@ if __name__ == '__main__':
 	  except:
 		  print('Warning, directory already exists. Exiting')
 		  quit()
+		  
+	  # make audio directory	  
 	  try:
 		  os.mkdir(os.path.join(root_dir,'audio'))
 	  except:
 		  pass
 
-	  # Make video/timestamp directories on Drive E
-	 # try: 
-	#	  os.mkdir(root_dirs[1])
-	#  except:
-	#	  pass
-		  
+	  # make video directory
 	  try:
 		  os.mkdir(os.path.join(root_dir,'video'))
 	  except:
 		  pass
 
+      # make time stamp directory
 	  try:
 		  os.mkdir(os.path.join(root_dir,'times'))
 	  except:
@@ -84,7 +94,8 @@ if __name__ == '__main__':
 	  # ******************************** EPOCH LOOPS ****************
 	  # loop over all epochs requested
 	  for epoch in range(n_epochs):
-		  	      	  
+
+		  # grab real time of start of each epoch and convert to human readable directory
 		  start_time = datetime.datetime.utcnow()
 		  start_time = start_time - datetime.timedelta(hours=4)
 		  start_time = start_time.strftime('%Y-%m-%d %H:%M:%S.%f').replace(" ", "_").replace(":","_").replace("-","_").replace(".","_")
